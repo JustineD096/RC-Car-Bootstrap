@@ -24,15 +24,32 @@ _FWDT(FWDTEN_OFF & WDTPOST_PS2048 & WDTPRE_PR128); //32,128
  */
 
 extern GPSData GPS;
+long originalTime;
+
+
+void delayTime(int time){
+    while((getTime() - originalTime) < time);
+}
 
 int main(int argc, char** argv) {
+    originalTime = getTime();
     initTruck();
+    setThrottle(0);   //Note that the first -20%/20% is a safety buffer region. Anything less than 20% is equivalent to no throttle.
+	setSteering(0);
+    delayTime(2000);
+    
     while(TRUE){
-        //This is how you move the car. Throttle goes from -100% to 100%. Steering goes from -100 to 100%.
-        setThrottle(0);   //Note that the first -20%/20% is a safety buffer region. Anything less than 20% is equivalent to no throttle.
+		//This is how you move the car. Throttle goes from -100% to 100%. Steering goes from -100 to 100%.
+		setThrottle(0);   //Note that the first -20%/20% is a safety buffer region. Anything less than 20% is equivalent to no throttle.
+		
+        setSteering(100);
+        setThrottle(50);
+        delayTime(600);
         setSteering(0);
-
+        delayTime(3000);
 //        This is an example of how you can print the GPS time to the debugging interface.
+        
+        originalTime = getTime();
         char str[16];
         sprintf((char *)&str, "Time: %lu", getTime());
         debug((char *)&str);
